@@ -1,16 +1,28 @@
 import React, {Component} from 'react';
 import './App.css';
 import {Container, Dropdown, Header, Icon, Image, Loader, Menu, Segment, Table} from "semantic-ui-react";
-import ninja from './ninja-dab.png';
-
+import ninjaImage from './ninja-dab.png';
+import { Router, Link } from "@reach/router";
+import { navigate } from "@reach/router";
 const moment = require("moment")
 
 class Leaderboard extends Component {
   constructor(props) {
     super(props)
 
-    let start = moment().startOf("month")
-    let end = moment().endOf("month")
+    this.state = {
+      data: {
+        discourse: [],
+        so: []
+      },
+      weeks: this.generateWeeks(props.month)
+    }
+  }
+
+  generateWeeks(month) {
+    const selectedMonth = moment(new Date(month));
+    let start = selectedMonth.clone().startOf("month").startOf("week")
+    let end = selectedMonth.clone().endOf("month")
 
     const weeks = [];
     let startDate = start.isoWeekday(7);
@@ -23,24 +35,32 @@ class Leaderboard extends Component {
       startDate.add(7, 'days');
       weeks.push(startDateWeek);
     }
-
-    this.state = {
-      data: {
-        discourse: [],
-        so: []
-      },
-      weeks: weeks
-    }
+    return weeks;
   }
 
   componentDidMount() {
-    fetch('https://ue81grqdr8.execute-api.us-east-1.amazonaws.com/dev/AllNinjas')
+    this.getActivities(this.props.month);
+  }
+
+  getActivities(month) {
+    this.setState({ data: {discourse: [], so: []}})
+    fetch('https://ue81grqdr8.execute-api.us-east-1.amazonaws.com/dev/AllNinjas?date=' + month)
       .then(res => res.json())
       .then((data) => {
         this.setState({data: data})
         console.log(data)
       })
       .catch(console.log)
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    console.log(prevProps.month,this.props.month )
+    if(prevProps.month !== this.props.month) {
+      this.getActivities(this.props.month);
+      this.setState( {
+        weeks: this.generateWeeks(this.props.month)
+      })
+    }
   }
 
   render() {
@@ -57,12 +77,13 @@ class Leaderboard extends Component {
       <Dropdown
         placeholder='Select month'
         inline
-        defaultValue="2020-04-01"
+        defaultValue={this.props.month}
         options={monthOptions}
+        onChange = {(event, data) => navigate("/leaderboard/" + data.value)}
       />
       </span>
 
-      {data.discourse.length > 0 && <Table basic='very' celled collapsing>
+      {<Table basic='very' celled collapsing>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>Name</Table.HeaderCell>
@@ -71,7 +92,6 @@ class Leaderboard extends Component {
               return <Table.HeaderCell>{week}</Table.HeaderCell>
             })}
 
-
           </Table.Row>
         </Table.Header>
 
@@ -79,7 +99,7 @@ class Leaderboard extends Component {
 
           {data.discourse.map(ninja => {
             return <Table.Row>
-              <Table.Cell>
+              <Table.Cell key={ninja.user}>
                 <Header as='h4' image>
                   <Header.Content>
                     {ninja.user}
@@ -92,23 +112,34 @@ class Leaderboard extends Component {
               {weeks.map(week => {
                 return <Table.Cell>
                   {Object.keys(ninja.weekly).includes(week) ?
-                    <div><Icon name="thumbs up outline"/><sup>{ninja.weekly[week]}</sup></div> :
+                    <div>
+                      <Image src={ninjaImage} width="20px" height="20px" style={{display: "inline"}} />
+                      <sup>{ninja.weekly[week]}</sup>
+                    </div> :
                     ""
                   }
                 </Table.Cell>
               })}
             </Table.Row>
           })}
+
+
+          {data.discourse.length === 0 &&
+          <Table.Row>
+            <Table.Cell colSpan={weeks.length+1} textAlign={"center"} >
+            <Loader active inline centered>
+
+                Loading Ninjas
+
+            </Loader>
+            </Table.Cell>
+          </Table.Row>
+          }
+
         </Table.Body>
       </Table>}
 
-      {data.discourse.length === 0 &&
-        <div>
-      <Loader active inline>
-        Loading Ninjas
-      </Loader>
-        </div>
-      }
+
 
     </div>
   }
@@ -123,7 +154,7 @@ const defaultIconStyle = {
 
 const menuStyle = {
   borderRadius: '0',
-  height: '100vh',
+  minHeight: '100vh',
   display: 'flex',
   justifyContent: 'space-between',
   width: '6em'
@@ -136,13 +167,13 @@ const topBarStyle = {
 function SideMenu() {
   return <Menu vertical={true} inverted style={menuStyle}>
     <div style={topBarStyle}>
-      <Menu.Item as='a'
+      <Menu.Item as='a' onClick={() => navigate("/")}
                  style={defaultIconStyle}>
-        <Icon size='big' name='home' color='gray'/>
+        <Icon size='big' name='home' color='grey'/>
       </Menu.Item>
       <Menu.Item title='Centralities' as='a'
                  style={menuItemStyle}>
-        <Icon size='big' name='angle double right' color='gray'/>
+        <Icon size='big' name='angle double right' color='grey'/>
       </Menu.Item>
 
     </div>
@@ -151,6 +182,11 @@ function SideMenu() {
 
 class App extends Component {
   render() {
+    const currentMonth = moment().startOf("month")
+
+    const HomeRoute = () => <Leaderboard month={currentMonth.format('YYYY-MM-DD')}/>;
+    const LeaderboardRoute = props => <Leaderboard month={props.month} />;
+
     const page = {
       header: "Ninjas Leaderboard",
       view: <Leaderboard/>
@@ -166,11 +202,16 @@ class App extends Component {
             {page.header ? <Header as='h1' inverted color='grey' style={{marginTop: '0'}}>
               {page.header}
             </Header> : null}
-          <Image src={ninja} width="38px" height="38px" />
+          <Image src={ninjaImage} width="38px" height="38px" />
 
           </Segment>
           <div style={{display: "flex", padding: "1em 1em"}}>
-          {page.view}
+
+
+            <Router>
+              <HomeRoute path="/" />
+              <LeaderboardRoute path="/leaderboard/:month" />
+            </Router>
           </div>
         </div>
       </Container>

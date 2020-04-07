@@ -1,11 +1,9 @@
 import React, {Component} from 'react';
 import './App.css';
-import {Container, Header, Icon, Image, Loader, Menu, Segment, Table} from "semantic-ui-react";
+import {Container, Dropdown, Header, Icon, Image, Loader, Menu, Segment, Table} from "semantic-ui-react";
 import ninja from './ninja-dab.png';
 
 const moment = require("moment")
-
-
 
 class Leaderboard extends Component {
   constructor(props) {
@@ -48,7 +46,21 @@ class Leaderboard extends Component {
   render() {
     const {data, weeks} = this.state
 
+    const monthOptions = [
+      {key: '2020-04-01', value: '2020-04-01', text: 'April 2020'},
+      {key: '2020-03-01', value: '2020-03-01', text: 'March 2020'},
+    ]
+
     return <div>
+      <span>
+        Leaderboard for {' '}
+      <Dropdown
+        placeholder='Select month'
+        inline
+        defaultValue="2020-04-01"
+        options={monthOptions}
+      />
+      </span>
 
       {data.discourse.length > 0 && <Table basic='very' celled collapsing>
         <Table.Header>
@@ -91,9 +103,11 @@ class Leaderboard extends Component {
       </Table>}
 
       {data.discourse.length === 0 &&
-      <Loader active inline='centered'>
+        <div>
+      <Loader active inline>
         Loading Ninjas
       </Loader>
+        </div>
       }
 
     </div>
@@ -138,8 +152,8 @@ function SideMenu() {
 class App extends Component {
   render() {
     const page = {
-      view: <Leaderboard/>,
-      header: "Ninjas Leaderboard"
+      header: "Ninjas Leaderboard",
+      view: <Leaderboard/>
     }
 
     return (

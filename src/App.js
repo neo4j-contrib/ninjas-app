@@ -1,9 +1,13 @@
 import React, {Component} from 'react';
 import './App.css';
-import {Container, Header, Icon, List, Loader, Table} from "semantic-ui-react";
+import {Container, Header, Icon, Image, Loader, Menu, Segment, Table} from "semantic-ui-react";
+import ninja from './ninja-dab.png';
+
 const moment = require("moment")
 
-class App extends Component {
+
+
+class Leaderboard extends Component {
   constructor(props) {
     super(props)
 
@@ -12,13 +16,13 @@ class App extends Component {
 
     const weeks = [];
     let startDate = start.isoWeekday(7);
-    if(startDate.date() === 8) {
+    if (startDate.date() === 8) {
       startDate = startDate.isoWeekday(-5)
     }
 
-    while(startDate.isBefore(end)) {
+    while (startDate.isBefore(end)) {
       let startDateWeek = startDate.isoWeekday('Sunday').format('YYYY-MM-DD');
-      startDate.add(7,'days');
+      startDate.add(7, 'days');
       weeks.push(startDateWeek);
     }
 
@@ -44,68 +48,118 @@ class App extends Component {
   render() {
     const {data, weeks} = this.state
 
-    return (
-      <div className="App" style={{padding: "5px"}}>
-        <Header as="h1">
-          Ninjas Leaderboard
-        </Header>
+    return <div>
 
-        <Container textAlign={"left"} fluid>
-          {data.discourse.length > 0  && <Table basic='very' celled collapsing>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell>Name</Table.HeaderCell>
+      {data.discourse.length > 0 && <Table basic='very' celled collapsing>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell>Name</Table.HeaderCell>
 
-                {weeks.map(week => {
-                  return <Table.HeaderCell>{week}</Table.HeaderCell>
-                })}
-
-
-              </Table.Row>
-            </Table.Header>
-
-            <Table.Body>
-
-            {data.discourse.map(ninja => {
-              return <Table.Row>
-                <Table.Cell>
-                  <Header as='h4' image>
-                    <Header.Content>
-                      {ninja.user}
-                      <Header.Subheader>
-                        {ninja.email}
-                      </Header.Subheader>
-                    </Header.Content>
-                  </Header>
-                </Table.Cell>
-                  {weeks.map(week =>{
-                    return <Table.Cell>
-                      {Object.keys(ninja.weekly).includes(week) ?
-                        <div><Icon name="thumbs up outline" /><sup>{ninja.weekly[week]}</sup></div> :
-                        ""
-                      }
-                    </Table.Cell>
-                  })}
-
-              </Table.Row>
-
+            {weeks.map(week => {
+              return <Table.HeaderCell>{week}</Table.HeaderCell>
             })}
 
 
+          </Table.Row>
+        </Table.Header>
 
-            </Table.Body>
-          </Table>}
+        <Table.Body>
 
+          {data.discourse.map(ninja => {
+            return <Table.Row>
+              <Table.Cell>
+                <Header as='h4' image>
+                  <Header.Content>
+                    {ninja.user}
+                    <Header.Subheader>
+                      {ninja.email}
+                    </Header.Subheader>
+                  </Header.Content>
+                </Header>
+              </Table.Cell>
+              {weeks.map(week => {
+                return <Table.Cell>
+                  {Object.keys(ninja.weekly).includes(week) ?
+                    <div><Icon name="thumbs up outline"/><sup>{ninja.weekly[week]}</sup></div> :
+                    ""
+                  }
+                </Table.Cell>
+              })}
+            </Table.Row>
+          })}
+        </Table.Body>
+      </Table>}
 
-          {data.discourse.length === 0 &&
-            <Loader active inline='centered'>
-              Loading Ninjas
-            </Loader>
-          }
+      {data.discourse.length === 0 &&
+      <Loader active inline='centered'>
+        Loading Ninjas
+      </Loader>
+      }
 
-        </Container>
+    </div>
+  }
+}
+const menuItemStyle = {
+  padding: '2em'
+}
 
-      </div>
+const defaultIconStyle = {
+  padding: '2em 2em 3em 2em'
+}
+
+const menuStyle = {
+  borderRadius: '0',
+  height: '100vh',
+  display: 'flex',
+  justifyContent: 'space-between',
+  width: '6em'
+}
+
+const topBarStyle = {
+  height: '100%'
+}
+
+function SideMenu() {
+  return <Menu vertical={true} inverted style={menuStyle}>
+    <div style={topBarStyle}>
+      <Menu.Item as='a'
+                 style={defaultIconStyle}>
+        <Icon size='big' name='home' color='gray'/>
+      </Menu.Item>
+      <Menu.Item title='Centralities' as='a'
+                 style={menuItemStyle}>
+        <Icon size='big' name='angle double right' color='gray'/>
+      </Menu.Item>
+
+    </div>
+  </Menu>
+}
+
+class App extends Component {
+  render() {
+    const page = {
+      view: <Leaderboard/>,
+      header: "Ninjas Leaderboard"
+    }
+
+    return (
+      <Container fluid style={{ display: 'flex' }}>
+        <SideMenu />
+
+        <div style={{width: '100%'}}>
+          <Segment basic  vertical={false}
+                   style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0' }}>
+            {page.header ? <Header as='h1' inverted color='grey' style={{marginTop: '0'}}>
+              {page.header}
+            </Header> : null}
+          <Image src={ninja} width="38px" height="38px" />
+
+          </Segment>
+          <div style={{display: "flex", padding: "1em 1em"}}>
+          {page.view}
+          </div>
+        </div>
+      </Container>
     );
   }
 }

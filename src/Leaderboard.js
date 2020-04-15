@@ -22,10 +22,8 @@ export class Leaderboard extends Component {
 
   static generateWeeks(month) {
     const selectedMonth = Moment(new Date(month + "T12:00:00Z"));
-    console.log("month", month, "selectedMonth", selectedMonth.toDate())
     let start = selectedMonth.clone().startOf("month").startOf("week")
     let end = selectedMonth.clone().endOf("month")
-    console.log("start", start.toDate(), "end", end.toDate())
 
     const weeks = [];
     let startDate = start.isoWeekday(7);
@@ -50,7 +48,7 @@ export class Leaderboard extends Component {
     fetch('https://li1bjw7vv9.execute-api.us-east-1.amazonaws.com/dev/AllNinjas?date=' + month)
       .then(res => res.json())
       .then((data) => {
-        this.setState({data: data})
+        this.setState({data: data, weeks: data.weeks})
         console.log(data)
       })
       .catch(console.log)

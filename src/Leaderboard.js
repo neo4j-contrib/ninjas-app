@@ -5,7 +5,6 @@ import ninjaImage from './ninja-dab.png';
 import {navigate} from "@reach/router";
 
 import Moment from 'moment'
-import { extendMoment } from 'moment-range';
 
 export class Leaderboard extends Component {
   constructor(props) {
@@ -16,27 +15,8 @@ export class Leaderboard extends Component {
         discourse: [],
         so: []
       },
-      weeks: Leaderboard.generateWeeks(props.month)
+      weeks: []
     }
-  }
-
-  static generateWeeks(month) {
-    const selectedMonth = Moment(new Date(month + "T12:00:00Z"));
-    let start = selectedMonth.clone().startOf("month").startOf("week")
-    let end = selectedMonth.clone().endOf("month")
-
-    const weeks = [];
-    let startDate = start.isoWeekday(7);
-    if (startDate.date() === 8) {
-      startDate = startDate.isoWeekday(-5)
-    }
-
-    while (startDate.isBefore(end)) {
-      let startDateWeek = startDate.isoWeekday('Sunday').format('YYYY-MM-DD');
-      startDate.add(7, 'days');
-      weeks.push(startDateWeek);
-    }
-    return weeks;
   }
 
   componentDidMount() {
@@ -59,7 +39,7 @@ export class Leaderboard extends Component {
     if (prevProps.month !== this.props.month) {
       this.getActivities(this.props.month);
       this.setState({
-        weeks: Leaderboard.generateWeeks(this.props.month)
+        weeks: []
       })
     }
   }
@@ -109,7 +89,7 @@ export class Leaderboard extends Component {
                   <Header.Content>
                     {ninja.discourseUser}
                     <Header.Subheader>
-                      {ninja.user}
+                      <a href={"https://community.neo4j.com/u/" + ninja.user + "/summary"} target="_blank">{ninja.user}</a>
                     </Header.Subheader>
                   </Header.Content>
                 </Header>

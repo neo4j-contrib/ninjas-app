@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import {Dropdown, Header, Image, Loader, Table} from "semantic-ui-react";
+import {Dropdown, Header, Icon, Image, Loader, Table} from "semantic-ui-react";
 import ninjaImage from './ninja-dab.png';
 import {navigate} from "@reach/router";
 
@@ -74,7 +74,7 @@ export class Leaderboard extends Component {
             <Table.HeaderCell>Name</Table.HeaderCell>
 
             {weeks.map(week => {
-              return <Table.HeaderCell>{week}</Table.HeaderCell>
+              return <Table.HeaderCell>{week.start} - {week.end}</Table.HeaderCell>
             })}
 
           </Table.Row>
@@ -96,10 +96,13 @@ export class Leaderboard extends Component {
               </Table.Cell>
               {weeks.map(week => {
                 return <Table.Cell textAlign={"center"}>
-                  {Object.keys(ninja.weekly).includes(week) ?
+                  {Object.keys(ninja.weekly).includes(week.start) ?
                     <div>
-                      <Image src={ninjaImage} width="20px" height="20px" style={{display: "inline"}}/>
-                      <sup>{ninja.weekly[week]}</sup>
+                      { ninja.isNinja ?
+                        <Image src={ninjaImage} width="20px" height="20px" style={{display: "inline"}}/> :
+                        <Icon name="thumbs up outline" />
+                      }
+                      <sup>{ninja.weekly[week.start]}</sup>
                     </div> :
                     ""
                   }

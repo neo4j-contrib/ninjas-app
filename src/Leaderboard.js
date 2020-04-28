@@ -74,7 +74,7 @@ export class Leaderboard extends Component {
             <Table.HeaderCell>Name</Table.HeaderCell>
 
             {weeks.map(week => {
-              return <Table.HeaderCell>{week.start} - {week.end}</Table.HeaderCell>
+              return <Table.HeaderCell textAlign={"center"}>{week.start}<br /><sub>{week.end}</sub></Table.HeaderCell>
             })}
 
           </Table.Row>

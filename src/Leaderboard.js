@@ -47,6 +47,9 @@ export class Leaderboard extends Component {
   render() {
     const {data, weeks} = this.state
 
+    console.log("props", this.props)
+    const {prefix} = this.props
+
     const dateStart = Moment(new Date(2020, 0,1))
     const dateEnd = Moment().startOf("month")
     const monthOptions = [];
@@ -56,6 +59,12 @@ export class Leaderboard extends Component {
       dateStart.add(1,'month');
     }
 
+    let {discourse} = data
+    if(this.props.prefix === "leaderboard") {
+      discourse = discourse.filter(ninja => ninja.isNinja)
+    }
+
+
     return <div>
       <span>
         Leaderboard for {' '}
@@ -64,7 +73,7 @@ export class Leaderboard extends Component {
           inline
           defaultValue={this.props.month}
           options={monthOptions}
-          onChange={(event, data) => navigate("/leaderboard/" + data.value)}
+          onChange={(event, data) => navigate(`/${prefix}/${data.value}`)}
         />
       </span>
 
@@ -82,7 +91,7 @@ export class Leaderboard extends Component {
 
         <Table.Body>
 
-          {data.discourse.map(ninja => {
+          {discourse.map(ninja => {
             return <Table.Row>
               <Table.Cell key={ninja.user}>
                 <Header as='h4' image>

@@ -5,7 +5,7 @@ import ninjaImage from './ninja-dab.png';
 import {navigate} from "@reach/router";
 
 import Moment from 'moment'
-
+const API_URL = process.env.REACT_APP_API_URL;
 export class Leaderboard extends Component {
   constructor(props) {
     super(props)
@@ -25,7 +25,7 @@ export class Leaderboard extends Component {
 
   getActivities(month) {
     this.setState({data: {discourse: [], so: []}})
-    fetch('https://li1bjw7vv9.execute-api.us-east-1.amazonaws.com/dev/AllNinjas?date=' + month)
+    fetch( API_URL + 'AllNinjas?date=' + month)
       .then(res => res.json())
       .then((data) => {
         this.setState({data: data, weeks: data.weeks})

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import {Dropdown, Header, Icon, Image, Loader, Table} from "semantic-ui-react";
+import {Dropdown, Header, Icon, Image, Loader, Table, List} from "semantic-ui-react";
 import ninjaImage from './ninja-dab.png';
 import {navigate} from "@reach/router";
 
@@ -81,6 +81,7 @@ export class Leaderboard extends Component {
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>Name</Table.HeaderCell>
+            <Table.HeaderCell>Categories</Table.HeaderCell>
 
             {weeks.map(week => {
               return <Table.HeaderCell textAlign={"center"}>{week.start}<br /><sub>{week.end}</sub></Table.HeaderCell>
@@ -103,6 +104,18 @@ export class Leaderboard extends Component {
                   </Header.Content>
                 </Header>
               </Table.Cell>
+
+              <Table.Cell key={ninja.user + "_categories"}>
+                <List style={{fontSize:"0.75em"}}>
+                  {ninja.categories.map( category => (
+                    <List.Item>
+                      <code><a href={"https://community.neo4j.com/c/" + category.id} rel="noopener noreferrer" target="_blank">{category.name}</a></code>
+                    </List.Item>
+                    ))}
+                  
+                </List>
+              </Table.Cell>
+
               {weeks.map(week => {
                 return <Table.Cell textAlign={"center"}>
                   {Object.keys(ninja.weekly).includes(week.start) ?
